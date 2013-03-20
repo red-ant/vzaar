@@ -16,19 +16,19 @@ module Vzaar
     def embed_video(id, options="border=none", width="448", height="336")
       content_tag(:div, :class => "vzaar_media_player") do
         content_tag(:object, :id => "video", :width => width, :height => height,
-          :type => "application/x-shockwave-flash", :data => "http://view.vzaar.com/#{id}.flashplayer") do
+          :type => "application/x-shockwave-flash", :data => "https://view.vzaar.com/#{id}.flashplayer") do
           embed_video_params(id, options, width, height) +
-          content_tag(:embed, nil, :src => "http://view.vzaar.com/#{id}.flashplayer", :type => "application/x-shockwave-flash",
+          content_tag(:embed, nil, :src => "https://view.vzaar.com/#{id}.flashplayer", :type => "application/x-shockwave-flash",
             :wmode => "transparent", :width => width, :height => height, :allowScriptAccess => "always", :allowFullScreen => "true",
             :flashvars => embed_video_options(options)) +
-          content_tag(:video, nil, :width => width, :height => height, :src => "http://view.vzaar.com/#{id}.mobile",
-            :poster => "http://view.vzaar.com/#{id}.image", :controls => true, :onclick => "this.play();")
+          content_tag(:video, nil, :width => width, :height => height, :src => "https://view.vzaar.com/#{id}.mobile",
+            :poster => "https://view.vzaar.com/#{id}.image", :controls => true, :onclick => "this.play();")
         end
       end
     end
 
     def embed_video_params(id, options, width, height)
-      content_tag(:param, nil, :name => "movie", :value => "http://view.vzaar.com/#{id}.flashplayer") +
+      content_tag(:param, nil, :name => "movie", :value => "https://view.vzaar.com/#{id}.flashplayer") +
       content_tag(:param, nil, :name => "allowScriptAccess", :value => "always") +
       content_tag(:param, nil, :name => "allowFullScreen", :value => "true") +
       content_tag(:param, nil, :name => "wmode", :value => "transparent") +
