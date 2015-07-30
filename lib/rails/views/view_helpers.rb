@@ -14,7 +14,7 @@ module Vzaar
     end
 
     def embed_video(id, options="border=none", width="448", height="336")
-      content_tag(:iframe,
+      content_tag(:iframe, nil,
                   :allowFullScreen => true,
                   :allowTransparency => "true",
                   :class => "vzaar-video-player",
