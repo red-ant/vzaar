@@ -3,50 +3,32 @@ require 'vzaar/base'
 module Vzaar
 
   module ViewHelpers
-  
+
     def include_vzaar_javascripts
-      javascript_include_tag 'vzaar/json_parse', 'vzaar/swfupload', 'vzaar/handlers', 
+      javascript_include_tag 'vzaar/json_parse', 'vzaar/swfupload', 'vzaar/handlers',
         'vzaar/swfupload.queue', 'vzaar/fileprogress'
     end
 
     def link_vzaar_stylesheets
       stylesheet_link_tag 'stylesheets/vzaar/swfupload.css'
     end
-    
+
     def embed_video(id, options="border=none", width="448", height="336")
-      content_tag(:div, :class => "vzaar_media_player") do
-        content_tag(:object, :id => "video", :width => width, :height => height,
-          :type => "application/x-shockwave-flash", :data => "https://view.vzaar.com/#{id}.flashplayer") do
-          embed_video_params(id, options, width, height) +
-          content_tag(:embed, nil, :src => "https://view.vzaar.com/#{id}.flashplayer", :type => "application/x-shockwave-flash",
-            :wmode => "transparent", :width => width, :height => height, :allowScriptAccess => "always", :allowFullScreen => "true",
-            :flashvars => embed_video_options(options)) +
-          content_tag(:video, nil, :width => width, :height => height, :src => "https://view.vzaar.com/#{id}.mobile",
-            :poster => "https://view.vzaar.com/#{id}.image", :controls => true, :onclick => "this.play();")
-        end
-      end
+      content_tag(:iframe,
+                  :allowFullScreen => true,
+                  :allowTransparency => "true",
+                  :class => "vzaar-video-player",
+                  :frameborder => 0,
+                  :height => height,
+                  :id => "vzvd-#{id}",
+                  :mozallowfullscreen => true,
+                  :name => "vzvd-#{id}",
+                  :src => "//view.vzaar.com/#{id}/player",
+                  :type => "text/html",
+                  :webkitAllowFullScreen => true,
+                  :width => width)
     end
 
-    def embed_video_params(id, options, width, height)
-      content_tag(:param, nil, :name => "movie", :value => "https://view.vzaar.com/#{id}.flashplayer") +
-      content_tag(:param, nil, :name => "allowScriptAccess", :value => "always") +
-      content_tag(:param, nil, :name => "allowFullScreen", :value => "true") +
-      content_tag(:param, nil, :name => "wmode", :value => "transparent") +
-      content_tag(:param, nil, :name => "flashvars", :value => embed_video_options(options))
-    end
-    
-    def embed_video_options(options={})
-      default_options = {
-        :border => false,
-        :colorSet => nil # options are nil (black), :blue, :red, :green, :yellow, :pink, :orange and :brown
-      }
-      options = default_options.merge(options)
-      flashvars = []
-      flashvars << "border=none" if options[:border] == false
-      flashvars << "colorSet=#{options[:colorSet]}" if !options[:colorSet].nil?
-      flashvars.join("&")
-    end
-    
     def vzaar_basic_params(signature)
       content_tag(:input, nil, :type => "hidden", :name => "key", :value => "#{signature.key}") +
       content_tag(:input, nil, :type => "hidden", :name => "AWSAccessKeyId", :value => "#{signature.aws_access_key}") +
@@ -55,12 +37,12 @@ module Vzaar
       content_tag(:input, nil, :type => "hidden", :name => "policy", :value => "#{signature.policy}") +
       content_tag(:input, nil, :type => "hidden", :name => "signature", :value => "#{signature.signature}")
     end
-    
+
     def vzaar_success_redirect(signature)
       content_tag(:input, nil, :type => "hidden", :name => "success_action_redirect", :value => signature.success_action_redirect)
     end
 
-    # 
+    #
     # <%=
     #     vzaar_flash_uploader :vzaar_params => {},
     #       :success_url => 'http://localhost/videos/'
@@ -96,7 +78,7 @@ module Vzaar
       vz = Vzaar::Base.new options[:vzaar_params]
       signature = vz.signature options
       upload_form = %Q{
-        <form action="http://#{signature.bucket}.s3.amazonaws.com/" method="post" 
+        <form action="http://#{signature.bucket}.s3.amazonaws.com/" method="post"
           enctype="multipart/form-data" id="uploadToS3">
 	        <div class="uploadFieldsWrapper" style="width:490px; float:left">
 			      #{vzaar_basic_params(signature)}
@@ -112,10 +94,10 @@ module Vzaar
       upload_form += vzaar_success_redirect(signature) if signature.success_action_redirect
       upload_form += %Q{
       		  <label class='videoFileStep'>video file to be uploaded</label>
-      		  <input name="file" type="file" id="fileField" onchange="EnableBasicButton();"> 
+      		  <input name="file" type="file" id="fileField" onchange="EnableBasicButton();">
             <br />
             <input name="upload" type="submit" />
-	        </div>	
+	        </div>
         </form>
       }
       upload_form
@@ -151,7 +133,7 @@ module Vzaar
           window.onload = function () {
             swfu = new SWFUpload({
               upload_url: "http://#{signature.bucket}.s3.amazonaws.com/",
-              http_success : [201], 
+              http_success : [201],
               assume_success_timeout : 0,
               // File Upload Settings
               file_post_name: 'file',
